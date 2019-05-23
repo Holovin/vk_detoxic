@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VK Detoxic
 // @namespace    https://holov.in/vkdetoxic
-// @version      0.0.3c
+// @version      0.0.3d
 // @description  Hey hey
 // @author       Alexander Holovin
 // @match        https://vk.com/*
@@ -25,7 +25,6 @@ function detox() {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     const pushStateFunction = history.pushState;
-    const dialogTarget = document.querySelector('div.im-page-history-w');
     let lastMessageId = -1;
     let dialogObserver = null;
 
@@ -38,10 +37,17 @@ function detox() {
 
     function detectChanges() {
         try {
+            const dialogTarget = document.querySelector('div.im-page-history-w');
+
+            if (!dialogTarget) {
+                console.warn('[VA] Нет диалогов, пропуск');
+                return;
+            }
+
             const dialogElement = dialogTarget.querySelector('span.im-page--title-main');
             const currentDialogName = dialogElement.title;
             const isDialogOpen = !!dialogElement.offsetParent;
-            console.warn(`[VA] Диалог: ${currentDialogName}`);
+            console.warn(`[VA] Диалог: ${currentDialogName} ${isDialogOpen ? 'открыт' : 'закрыт'}`);
 
             if (dialogObserver) {
                 console.warn('[VA] Детокс выкл.');
@@ -53,7 +59,7 @@ function detox() {
                 console.warn('[VA] Детокс вкл.');
 
                 hidePreloadedMessages();
-                startChatObserver();
+                startChatObserver(dialogTarget);
             }
 
         } catch (error) {
@@ -67,7 +73,7 @@ function detox() {
         messages.forEach(item => processMessage(item));
     }
 
-    function startChatObserver() {
+    function startChatObserver(dialogTarget) {
         const config = { attributes: false, childList: true, characterData: true, subtree: true };
         dialogObserver = new MutationObserver(mutations => {
             mutations.forEach(mutation => {
