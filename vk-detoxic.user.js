@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VK Detoxic
 // @namespace    https://holov.in/vkdetoxic
-// @version      0.0.3d
+// @version      0.0.4
 // @description  Hey hey
 // @author       Alexander Holovin
 // @match        https://vk.com/*
@@ -21,6 +21,7 @@ function detox() {
     const dialogNames = ['ONE', 'TWO'];
     const banUserId = '000';
     const banUserName = 'NAME';
+    const banUserLink = '/userlink';
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -40,14 +41,14 @@ function detox() {
             const dialogTarget = document.querySelector('div.im-page-history-w');
 
             if (!dialogTarget) {
-                console.warn('[VA] Нет диалогов, пропуск');
+                console.debug('[VA] Нет диалогов, пропуск');
                 return;
             }
 
             const dialogElement = dialogTarget.querySelector('span.im-page--title-main');
             const currentDialogName = dialogElement.title;
             const isDialogOpen = !!dialogElement.offsetParent;
-            console.warn(`[VA] Диалог: ${currentDialogName} ${isDialogOpen ? 'открыт' : 'закрыт'}`);
+            console.debug(`[VA] Диалог: ${currentDialogName} ${isDialogOpen ? 'открыт' : 'закрыт'}`);
 
             if (dialogObserver) {
                 console.warn('[VA] Детокс выкл.');
@@ -106,20 +107,28 @@ function detox() {
             const userId = messageElement.dataset.peer;
 
             if (userId === banUserId) {
-                console.warn('[VA] fixed ok by user id');
+                console.warn('[VA] fixed ok: by user id');
                 hideElement(messageElement);
                 return;
             }
 
             const answerBlock = element.getElementsByClassName('im-replied--author-link _im_replied_author_link');
-
             if (answerBlock.length && answerBlock[0].text === banUserName) {
-                console.warn('[VA] fixed ok by reply');
-                fakeHideElement(element);
-               return;
+                hideStacked(element, 'reply');
+                return;
             }
 
-            console.log('[VA] skip');
+            const forwardBlock = element.getElementsByClassName('media_desc im-mess--inline-fwd');
+            if (forwardBlock.length) {
+                const userUrl = forwardBlock[0].getElementsByClassName('im_grid');
+
+                if (userUrl.length && userUrl[0].href.indexOf(banUserLink) !== -1) {
+                    hideStacked(element, 'forward');
+                    return;
+                }
+            }
+
+            console.debug('[VA] skip');
 
         } catch (error) {
             console.warn(`[VA] ${error}\n${error.stack}`);
@@ -135,5 +144,16 @@ function detox() {
         console.log('FakeHide: ', element);
         element.style.height = '22px';
         element.style.opacity = '0';
+    }
+
+    function hideStacked(element, reason) {
+        if (element.nextElementSibling) {
+            console.warn(`[VA] fixed ok: by ${reason} (partial)`);
+            fakeHideElement(element);
+            return;
+        }
+
+        console.warn(`[VA] fixed ok: by ${reason} (full)`);
+        hideElement(element);
     }
 }
