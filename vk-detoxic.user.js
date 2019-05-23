@@ -18,7 +18,7 @@ function detox() {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    const dialogName = 'CONF';
+    const dialogNames = ['ONE', 'TWO'];
     const banUserId = '000';
     const banUserName = 'NAME';
 
@@ -40,9 +40,8 @@ function detox() {
         try {
             const currentDialogName = dialogTarget.querySelector('span.im-page--title-main').title;
             console.warn(`[VA] Диалог: ${currentDialogName}`);
-
-            // currentDialogName === dialogName
-            if (!dialogObserver && document.location.search.includes('sel')) {
+            
+            if (!dialogObserver && dialogNames.includes(currentDialogName) && document.location.search.includes('sel')) {
                 console.warn('[VA] Детокс вкл.');
 
                 hidePreloadedMessages();
