@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VK Detoxic
 // @namespace    https://holov.in/vkdetoxic
-// @version      0.0.4
+// @version      0.0.4b
 // @description  Hey hey
 // @author       Alexander Holovin
 // @match        https://vk.com/*
@@ -14,7 +14,7 @@ window.addEventListener('load', detox, false);
 
 function detox() {
     'use strict';
-    console.warn('DetoxLoaded v3');
+    console.warn('DetoxLoaded v4');
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -142,7 +142,8 @@ function detox() {
 
     function fakeHideElement(element) {
         console.log('FakeHide: ', element);
-        element.style.height = '22px';
+        element.style.height = '1px';
+        element.style.padding = '22px 0 0 0';
         element.style.opacity = '0';
     }
 
