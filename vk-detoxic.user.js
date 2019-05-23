@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VK Detoxic
 // @namespace    https://holov.in/vkdetoxic
-// @version      0.0.3b
+// @version      0.0.3c
 // @description  Hey hey
 // @author       Alexander Holovin
 // @match        https://vk.com/*
@@ -42,19 +42,18 @@ function detox() {
             const currentDialogName = dialogElement.title;
             const isDialogOpen = !!dialogElement.offsetParent;
             console.warn(`[VA] Диалог: ${currentDialogName}`);
-            
-            if (isDialogOpen && dialogNames.includes(currentDialogName)) {
-                console.warn('[VA] Детокс вкл.');
-
-                hidePreloadedMessages();
-                startChatObserver();
-                return;
-            }
 
             if (dialogObserver) {
                 console.warn('[VA] Детокс выкл.');
                 dialogObserver.disconnect();
                 dialogObserver = null;
+            }
+
+            if (isDialogOpen && dialogNames.includes(currentDialogName)) {
+                console.warn('[VA] Детокс вкл.');
+
+                hidePreloadedMessages();
+                startChatObserver();
             }
 
         } catch (error) {
