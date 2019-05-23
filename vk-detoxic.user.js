@@ -37,21 +37,27 @@ function detox() {
     };
 
     function detectChanges() {
-        const currentDialogName = dialogTarget.querySelector('span.im-page--title-main').title;
-        console.warn(`[VA] Диалог: ${currentDialogName}`);
+        try {
+            const currentDialogName = dialogTarget.querySelector('span.im-page--title-main').title;
+            console.warn(`[VA] Диалог: ${currentDialogName}`);
 
-        if (!dialogObserver && currentDialogName === dialogName && document.location.search.includes('sel')) {
-            console.warn('[VA] Детокс вкл.');
+            if (!dialogObserver && currentDialogName === dialogName && document.location.search.includes('sel')) {
+                console.warn('[VA] Детокс вкл.');
 
-            hidePreloadedMessages();
-            startChatObserver();
-            return;
-        }
+                hidePreloadedMessages();
+                startChatObserver();
+                return;
+            }
 
-        if (dialogObserver) {
-            console.warn('[VA] Детокс выкл.');
-            dialogObserver.disconnect();
-            dialogObserver = null;
+            if (dialogObserver) {
+                console.warn('[VA] Детокс выкл.');
+                dialogObserver.disconnect();
+                dialogObserver = null;
+            }
+
+        } catch (error) {
+            console.warn(`[VA] ${error}\n${error.stack}`);
+            setTimeout(detectChanges, 100);
         }
     }
 
@@ -102,7 +108,7 @@ function detox() {
 
             if (answerBlock.length && answerBlock[0].text === banUserName) {
                 console.warn('[VA] fixed ok by reply');
-                hideElement(messageElement);
+                fakeHideElement(element);
                return;
             }
 
@@ -114,6 +120,13 @@ function detox() {
     }
 
     function hideElement(element) {
+        console.log('Hide: ', element);
         element.style.display = 'none';
+    }
+
+    function fakeHideElement(element) {
+        console.log('FakeHide: ', element);
+        element.style.height = '22px';
+        element.style.opacity = '0';
     }
 }
