@@ -18,7 +18,7 @@ function detox() {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    const dialogName = 'Тестировочная #2 (SF only)';
+    const dialogName = 'CONF';
     const banUserId = '000';
     const banUserName = 'NAME';
 
@@ -41,7 +41,8 @@ function detox() {
             const currentDialogName = dialogTarget.querySelector('span.im-page--title-main').title;
             console.warn(`[VA] Диалог: ${currentDialogName}`);
 
-            if (!dialogObserver && currentDialogName === dialogName && document.location.search.includes('sel')) {
+            // currentDialogName === dialogName
+            if (!dialogObserver && document.location.search.includes('sel')) {
                 console.warn('[VA] Детокс вкл.');
 
                 hidePreloadedMessages();
@@ -71,6 +72,24 @@ function detox() {
         dialogObserver = new MutationObserver(mutations => {
             mutations.forEach(mutation => {
                 if (mutation.type !== 'childList' || mutation.addedNodes.length === 0) {
+                    return;
+                }
+
+                // typings...
+                if (mutation.target.classList.contains('_im_typing_name')) {
+                    console.warn(mutation);
+
+                    const typeText = mutation.target.innerText;
+
+                    if (typeText === `${banUserName} печатает`) {
+                        hideElement(mutation.target.parentElement.parentElement);
+
+                    } else {
+                        // TODO: case for 2/3+ ppl typings
+                        // mutation.target.innerText = mutation.target.innerText.replace(banUserName, '');
+                    }
+
+                    console.warn(mutation.target.innerText);
                     return;
                 }
 
