@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VK Detoxic
 // @namespace    https://holov.in/vkdetoxic
-// @version      0.0.3
+// @version      0.0.3b
 // @description  Hey hey
 // @author       Alexander Holovin
 // @match        https://vk.com/*
@@ -73,24 +73,6 @@ function detox() {
         dialogObserver = new MutationObserver(mutations => {
             mutations.forEach(mutation => {
                 if (mutation.type !== 'childList' || mutation.addedNodes.length === 0) {
-                    return;
-                }
-
-                // typings...
-                if (mutation.target.classList.contains('_im_typing_name')) {
-                    console.warn(mutation);
-
-                    const typeText = mutation.target.innerText;
-
-                    if (typeText === `${banUserName} печатает`) {
-                        hideElement(mutation.target.parentElement.parentElement);
-
-                    } else {
-                        // TODO: case for 2/3+ ppl typings
-                        // mutation.target.innerText = mutation.target.innerText.replace(banUserName, '');
-                    }
-
-                    console.warn(mutation.target.innerText);
                     return;
                 }
 
