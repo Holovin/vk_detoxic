@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VK Detoxic
 // @namespace    https://holov.in/vkdetoxic
-// @version      0.0.2
+// @version      0.0.3
 // @description  Hey hey
 // @author       Alexander Holovin
 // @match        https://vk.com/*
@@ -14,7 +14,7 @@ window.addEventListener('load', detox, false);
 
 function detox() {
     'use strict';
-    console.warn('DetoxLoaded');
+    console.warn('DetoxLoaded v3');
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -38,10 +38,12 @@ function detox() {
 
     function detectChanges() {
         try {
-            const currentDialogName = dialogTarget.querySelector('span.im-page--title-main').title;
+            const dialogElement = dialogTarget.querySelector('span.im-page--title-main');
+            const currentDialogName = dialogElement.title;
+            const isDialogOpen = !!dialogElement.offsetParent;
             console.warn(`[VA] Диалог: ${currentDialogName}`);
             
-            if (!dialogObserver && dialogNames.includes(currentDialogName) && document.location.search.includes('sel')) {
+            if (isDialogOpen && dialogNames.includes(currentDialogName)) {
                 console.warn('[VA] Детокс вкл.');
 
                 hidePreloadedMessages();
