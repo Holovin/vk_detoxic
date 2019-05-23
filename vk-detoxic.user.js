@@ -1,118 +1,119 @@
 // ==UserScript==
 // @name         VK Detoxic
-// @namespace    http://holov.in/vkdetoxic
-// @version      0.0.1
+// @namespace    https://holov.in/vkdetoxic
+// @version      0.0.2
 // @description  Hey hey
 // @author       Alexander Holovin
-// @match        https://vk.com/im?sel=c*
+// @match        https://vk.com/*
+// @license      MIT
 // @grant        none
+// @noframes
 // ==/UserScript==
 
-(() => {
+window.addEventListener('load', detox, false);
+
+function detox() {
     'use strict';
+    console.warn('DetoxLoaded');
 
-    // VARS
-    const dialogName = '';
-    const banUserId = '';
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // END VARS
-    const target = document.querySelector('div.im-page-history-w');
+    const dialogName = 'Тестировочная #2 (SF only)';
+    const banUserId = '000';
+    const banUserName = 'NAME';
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    const pushStateFunction = history.pushState;
+    const dialogTarget = document.querySelector('div.im-page-history-w');
     let lastMessageId = -1;
-    let starterHandler;
+    let dialogObserver = null;
 
+    detectChanges();
 
-    starter();
+    history.pushState = function() {
+        pushStateFunction.apply(history, arguments);
+        setTimeout(detectChanges, 100);
+    };
 
-    function starter() {
-        console.warn('[VA] started!');
+    function detectChanges() {
+        const currentDialogName = dialogTarget.querySelector('span.im-page--title-main').title;
+        console.warn(`[VA] Диалог: ${currentDialogName}`);
 
-        starterHandler = (e => {
-            const currentDialogName = target.querySelector('span.im-page--title-main').title;
-            console.warn(`[VA] Диалог: ${currentDialogName}`);
+        if (!dialogObserver && currentDialogName === dialogName && document.location.search.includes('sel')) {
+            console.warn('[VA] Детокс вкл.');
 
-            if (currentDialogName === dialogName) {
-                start();
-                stopEvent(e);
-            }
-        });
+            hidePreloadedMessages();
+            startChatObserver();
+            return;
+        }
 
-        document.addEventListener('keydown', starterHandler, true);
+        if (dialogObserver) {
+            console.warn('[VA] Детокс выкл.');
+            dialogObserver.disconnect();
+            dialogObserver = null;
+        }
     }
 
-    function start() {
-        document.removeEventListener('keydown', starterHandler, true);
-        console.warn('[VA] Удаление слушателя');
-
-        const messages = document.querySelectorAll('li.im-mess');
-
-        processMessage(messages[messages.length - 1]);
-        startObserver();
+    function hidePreloadedMessages() {
+        const messages = [...document.querySelectorAll('li.im-mess')].slice(-20);
+        messages.forEach(item => processMessage(item));
     }
 
-    function stopEvent(e) {
-        // console.log('[MU] Stop event: ', e);
-        e.preventDefault();
-        e.stopImmediatePropagation();
-    }
-
-    function startObserver() {
-        const config = {
-            attributes: false,
-            childList: true,
-            characterData: true,
-            subtree: true,
-        };
-
-        const observer = new MutationObserver(mutations => {
-            // console.log('[MU] New: ', mutations);
-
+    function startChatObserver() {
+        const config = { attributes: false, childList: true, characterData: true, subtree: true };
+        dialogObserver = new MutationObserver(mutations => {
             mutations.forEach(mutation => {
                 if (mutation.type !== 'childList' || mutation.addedNodes.length === 0) {
-                    // console.log('[MU] Skip: ', mutation);
                     return;
                 }
 
                 const messageId = mutation.target.dataset.ts;
 
                 if (!messageId || lastMessageId > messageId) {
-                    // console.log(`skip scroll events, last: ${lastMessageId} > id ${messageId}`);
                     return;
                 }
 
                 lastMessageId = messageId;
 
                 if (!mutation.target.classList.contains('im-mess') || mutation.target.classList.contains('im-mess_out')) {
-                    // console.log('[MU] Skip unread/out messages', mutation);
                     return;
                 }
 
-                // console.warn('[MU]', mutation);
                 processMessage(mutation.target);
             });
         });
 
-        observer.observe(target, config);
+        dialogObserver.observe(dialogTarget, config);
     }
 
-    function processMessage(mutation) {
-        // li > ul > div.stackContent > div.messStack
+    function processMessage(element) {
         try {
-            const elem = mutation.parentElement.parentElement.parentElement;
-            const userId = elem.dataset.peer;
+            const messageElement = element.parentElement.parentElement.parentElement;
+            const userId = messageElement.dataset.peer;
 
             if (userId === banUserId) {
-                console.warn('[VA] fixed ok');
-                elem.style.display = 'none';
-            } else {
-                console.log('[VA] skip');
+                console.warn('[VA] fixed ok by user id');
+                hideElement(messageElement);
+                return;
             }
+
+            const answerBlock = element.getElementsByClassName('im-replied--author-link _im_replied_author_link');
+
+            if (answerBlock.length && answerBlock[0].text === banUserName) {
+                console.warn('[VA] fixed ok by reply');
+                hideElement(messageElement);
+               return;
+            }
+
+            console.log('[VA] skip');
 
         } catch (error) {
             console.warn(`[VA] ${error}\n${error.stack}`);
         }
     }
 
-    // TODO: use disconnect?
-})();
+    function hideElement(element) {
+        element.style.display = 'none';
+    }
+}
