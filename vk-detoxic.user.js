@@ -33,7 +33,7 @@ function detox() {
 
     history.pushState = function() {
         pushStateFunction.apply(history, arguments);
-        setTimeout(detectChanges, 100);
+        setTimeout(detectChanges, 750);
     };
 
     function detectChanges() {
@@ -65,7 +65,6 @@ function detox() {
 
         } catch (error) {
             console.warn(`[VA] ${error}\n${error.stack}`);
-            setTimeout(detectChanges, 100);
         }
     }
 
@@ -155,6 +154,6 @@ function detox() {
         }
 
         console.warn(`[VA] fixed ok: by ${reason} (full)`);
-        hideElement(element);
+        hideElement(element.parentElement.parentElement.parentElement);
     }
 }
