@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VK Detox 2
 // @namespace    https://holov.in/ujs/VKD2
-// @version      1.99.115
+// @version      1.99.116
 // @description  VK Detox 2
 // @author       Alex Holovin
 // @match        https://*.vk.com/*
@@ -14,7 +14,7 @@
 function showDeletedMessages() {
   const ID = 327617;
 
-  console.log('[VK Detox] Running: 1.99.115');
+  console.log('[VK Detox] Running: 1.99.116');
 
   XMLHttpRequest.prototype.send = (function buildFakeSend(sendOrg) {
     return function fakeSend(...sendArgs) {
@@ -50,7 +50,7 @@ function showDeletedMessages() {
                 const isReply = (update[0] === 4 && update[7].marked_users[0].find(subArr => Array.isArray(subArr) && subArr.includes(ID)));
                 if (isReply) {
                   setTimeout(() => {
-                    const el = geByClass1('_im_msg_reply' + update[1] + ' > div')
+                    const el = geByClass1('_im_msg_reply' + update[1]);
                     el.style.filter = 'blur(8px) opacity(0.5)';
                     el.parentElement.style.overflow = 'hidden';
                   });
