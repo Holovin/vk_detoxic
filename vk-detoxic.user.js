@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VK Detox 2
 // @namespace    https://holov.in/ujs/VKD2
-// @version      1.99.114
+// @version      1.99.115
 // @description  VK Detox 2
 // @author       Alex Holovin
 // @match        https://*.vk.com/*
@@ -12,9 +12,9 @@
 /* global geByClass1 */
 
 function showDeletedMessages() {
-  const ID = 572200511;
+  const ID = 327617;
 
-  console.log('[VK Detox] Running: 1.99.114');
+  console.log('[VK Detox] Running: 1.99.115');
 
   XMLHttpRequest.prototype.send = (function buildFakeSend(sendOrg) {
     return function fakeSend(...sendArgs) {
